@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Election Assistant</title>
+    <meta name="theme-color" content="#1a56db">
+    <meta name="description" content="Your guide to voting in India — simple, accessible, multilingual">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Accessibility Panel Toggle -->
+    <button id="a11y-toggle" class="a11y-fab" aria-label="Accessibility Settings"
+        title="Accessibility Settings">♿</button>
+
+    <div id="a11y-panel" class="a11y-panel hidden">
+        <div class="a11y-panel-header">
+            <span>Accessibility</span>
+            <button onclick="document.getElementById('a11y-panel').classList.add('hidden')"
+                aria-label="Close">✕</button>
+        </div>
+        <div class="a11y-row">
+            <label>Font Size</label>
+            <div class="a11y-controls">
+                <button onclick="changeFontSize(-1)">A−</button>
+                <button onclick="changeFontSize(1)">A+</button>
+            </div>
+        </div>
+        <div class="a11y-row">
+            <label>High Contrast</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="high-contrast-toggle" onchange="toggleHighContrast(this)">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="a11y-row">
+            <label>Dyslexia Font</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="dyslexia-toggle" onchange="toggleDyslexia(this)">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="a11y-row">
+            <label>Reduce Motion</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="motion-toggle" onchange="toggleMotion(this)">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="a11y-row">
+            <label>Dark Mode</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="dark-toggle" onchange="toggleDark(this)">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-banner" class="pwa-banner hidden">
+        <span>📲 Install this app for offline use on election day!</span>
+        <button id="pwa-install-btn">Install</button>
+        <button onclick="document.getElementById('pwa-banner').classList.add('hidden')" aria-label="Dismiss">✕</button>
+    </div>
+
+    <!-- Top Language Selector -->
+    <div class="lang-selector">
+        <select id="langSelect" onchange="applyLanguage(this.value)">
+            <option value="en">🇬🇧 English</option>
+            <option value="hi">🇮🇳 हिंदी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="te">తెలుగు</option>
+            <option value="kn">ಕನ್ನಡ</option>
+            <option value="bn">বাংলা</option>
+            <option value="mr">मराठी</option>
+            <option value="bho">भोजपुरी</option>
+            <option value="awa">अवधी</option>
+        </select>
+        <button id="global-read-btn" class="btn-small" onclick="readPageAloud()" aria-label="Read page aloud">🔊 Read
+            Page</button>
+        <div id="offline-badge" class="offline-badge hidden">📡 Offline</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky-nav" role="navigation" aria-label="App sections">
+        <button class="nav-btn active" data-target="steps">📋 Steps</button>
+        <button class="nav-btn" data-target="timeline">📅 Timeline</button>
+        <button class="nav-btn" data-target="words">📖 Words</button>
+        <button class="nav-btn" data-target="voice">🎙️ Ask AI</button>
+        <button class="nav-btn" data-target="scan">📸 Scan</button>
+        <button class="nav-btn" data-target="quiz">🧠 Quiz</button>
+        <button class="nav-btn" data-target="booth">🗺️ Booth</button>
+        <button class="nav-btn" data-target="rights">⚖️ Rights</button>
+        <button class="nav-btn" data-target="myths">💡 Myths</button>
+        <button class="nav-btn" data-target="ballot">🗳️ Practice</button>
+        <button class="nav-btn" data-target="candidates">👥 Candidates</button>
+        <button class="nav-btn" data-target="progress">🏆 Progress</button>
+    </nav>
+
+    <!-- Progress Bar (global) -->
+    <div class="global-progress-bar">
+        <div id="global-progress-fill" style="width:0%"></div>
+    </div>
+
+    <main id="app-content">
+
+        <!-- ===== SECTION: STEPS ===== -->
+        <section id="steps" class="section active">
+            <h2 id="header-steps">How an Election Works</h2>
+            <p id="desc-steps">Tap each step to learn more — pictures and simple words.</p>
+            <div id="steps-container"></div>
+            <div class="quick-ask">
+                <p id="ask-steps-title">💬 Ask a question:</p>
+                <div class="chip-container" id="steps-chips">
+                    <button class="chip" onclick="sendToAI('Who can vote?')">Who can vote?</button>
+                    <button class="chip" onclick="sendToAI('What ID do I need?')">What ID do I need?</button>
+                    <button class="chip" onclick="sendToAI('How do candidates register?')">How do candidates
+                        register?</button>
+                    <button class="chip" onclick="sendToAI('What if my name is missing from the list?')">Name
+                        missing?</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION: TIMELINE ===== -->
+        <section id="timeline" class="section hidden">
+            <h2 id="header-timeline">Election Timeline</h2>
+            <p>Key dates from announcement to results.</p>
+            <div class="timeline-container" id="timeline-container"></div>
+        </section>
+
+        <!-- ===== SECTION: GLOSSARY ===== -->
+        <section id="words" class="section hidden">
+            <h2 id="header-words">Election Words</h2>
+            <p id="desc-words">Tap a card to flip open a simple definition.</p>
+            <input type="text" id="glossary-search" class="search-input" placeholder="🔍 Search a word..."
+                oninput="filterGlossary(this.value)">
+            <div class="glossary-grid" id="glossary-container"></div>
+        </section>
+
+        <!-- ===== SECTION: AI VOICE ASSISTANT ===== -->
+        <section id="voice" class="section hidden">
+            <h2 id="header-voice">Ask the Election AI</h2>
+            <div class="chat-container" id="chat-messages">
+                <div class="chat-bubble bot">👋 Hello! I'm your election assistant. Ask me anything about voting,
+                    candidates, or your rights.</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chat-input" class="chat-text-input" placeholder="Type your question..."
+                    onkeydown="if(event.key==='Enter') sendChatMessage()">
+                <button id="mic-btn" class="mic-btn" onclick="toggleMic()" aria-label="Voice input">🎙️</button>
+                <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+            </div>
+            <div class="chip-container" style="margin-top:12px">
+                <button class="chip" onclick="sendToAI('What documents do I need to vote?')">Documents needed</button>
+                <button class="chip" onclick="sendToAI('Can I vote if I moved recently?')">Moved recently</button>
+                <button class="chip" onclick="sendToAI('What is NOTA?')">What is NOTA?</button>
+                <button class="chip" onclick="sendToAI('What happens if my ink mark is not applied?')">Ink mark
+                    issue</button>
+            </div>
+            <p id="mic-status" class="mic-status"></p>
+        </section>
+
+        <!-- ===== SECTION: SCAN ===== -->
+        <section id="scan" class="section hidden">
+            <h2 id="header-scan">Scan a Document</h2>
+            <p id="desc-scan">Upload any election document or poster — AI will read and explain it.</p>
+            <div class="scan-area" id="scan-area" onclick="document.getElementById('file-upload').click()">
+                <div class="scan-icon">📄</div>
+                <p id="scan-prompt">Tap to upload image or photo</p>
+                <p class="scan-hint">Supports: voter card, notice, poster, ballot</p>
+                <input type="file" id="file-upload" accept="image/*" style="display:none;" onchange="handleScan(this)">
+            </div>
+            <div id="scan-result" class="hidden">
+                <div class="scan-bar-anim"></div>
+                <div class="scan-content-box">
+                    <p id="scan-text">Reading document...</p>
+                </div>
+                <div class="scan-actions">
+                    <button class="btn btn-primary" onclick="readScan()">🔊 Read Aloud</button>
+                    <button class="btn btn-secondary" onclick="resetScan()">📄 Scan Another</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION: QUIZ ===== -->
+        <section id="quiz" class="section hidden">
+            <h2 id="header-quiz">Test Your Knowledge</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="quiz-progress" style="width: 0%;"></div>
+            </div>
+            <div id="quiz-container"></div>
+            <div id="quiz-results" class="hidden quiz-results">
+                <div class="result-icon" id="result-icon">🏆</div>
+                <h3 id="result-title">Quiz Complete!</h3>
+                <p id="result-score"></p>
+                <div class="badge-earned hidden" id="quiz-badge">🎖️ You earned the "Informed Voter" badge!</div>
+                <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
+            </div>
+        </section>
+
+        <!-- ===== SECTION: BOOTH LOCATOR ===== -->
+        <section id="booth" class="section hidden">
+            <h2>Find Your Polling Booth</h2>
+            <p>Enter your details to find the nearest booth and get directions.</p>
+            <div class="form-group">
+                <label>State</label>
+                <select id="booth-state" class="select-input" onchange="loadDistricts(this.value)">
+                    <option value="">Select State...</option>
+                    <option value="UP">Uttar Pradesh</option>
+                    <option value="MH">Maharashtra</option>
+                    <option value="KA">Karnataka</option>
+                    <option value="TN">Tamil Nadu</option>
+                    <option value="WB">West Bengal</option>
+                    <option value="GJ">Gujarat</option>
+                    <option value="RJ">Rajasthan</option>
+                    <option value="AP">Andhra Pradesh</option>
+                    <option value="TS">Telangana</option>
+                    <option value="DL">Delhi</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>EPIC / Voter ID Number</label>
+                <input type="text" id="booth-epic" class="text-input" placeholder="e.g. ABC1234567" maxlength="10">
+            </div>
+            <button class="btn btn-primary" onclick="findBooth()">🔍 Find My Booth</button>
+            <div id="booth-result" class="hidden booth-result-card">
+                <div class="booth-info">
+                    <div class="booth-name" id="booth-name"></div>
+                    <div class="booth-address" id="booth-address"></div>
+                    <div class="booth-hours">🕗 Opens 7:00 AM – Closes 6:00 PM</div>
+                </div>
+                <div class="booth-actions">
+                    <button class="btn btn-primary" onclick="openGoogleMaps()">🗺️ Get Directions</button>
+                    <button class="btn btn-secondary" onclick="shareBoothWhatsApp()">📱 Share on WhatsApp</button>
+                    <button class="btn btn-secondary" onclick="setElectionReminder()">⏰ Set Reminder</button>
+                </div>
+            </div>
+            <div class="info-card" style="margin-top:20px">
+                <p>💡 <strong>Voter Helpline:</strong> Call <a href="tel:1950" class="link">1950</a> (toll-free) for any
+                    booth-related queries.</p>
+            </div>
+        </section>
+
+        <!-- ===== SECTION: VOTER RIGHTS ===== -->
+        <section id="rights" class="section hidden">
+            <h2>Your Voter Rights</h2>
+            <p>Know your rights before you go to vote.</p>
+            <div id="rights-container" class="rights-grid"></div>
+            <div class="info-card emergency-card">
+                <h3>🚨 Report a Violation</h3>
+                <p>If your rights are violated on election day:</p>
+                <a href="tel:1950" class="btn btn-primary" style="display:inline-block;margin-top:10px">📞 Call 1950</a>
+                <a href="tel:100" class="btn btn-secondary"
+                    style="display:inline-block;margin-top:10px;margin-left:8px">🚓 Call 100</a>
+            </div>
+        </section>
+
+        <!-- ===== SECTION: MYTH BUSTER ===== -->
+        <section id="myths" class="section hidden">
+            <h2>Myth Buster</h2>
+            <p>Swipe through common myths about voting — get the facts.</p>
+            <div id="myth-deck" class="myth-deck"></div>
+            <div class="myth-nav">
+                <button class="btn btn-secondary" onclick="prevMyth()">← Prev</button>
+                <span id="myth-counter">1 / 8</span>
+                <button class="btn btn-primary" onclick="nextMyth()">Next →</button>
+            </div>
+            <div class="chip-container" style="margin-top:12px">
+                <button class="chip" onclick="sendToAI('Is it true that I need to vote for my caste?')">Caste &
+                    voting</button>
+                <button class="chip" onclick="sendToAI('Does my vote really matter?')">Does my vote matter?</button>
+                <button class="chip" onclick="sendToAI('Can I be forced to vote for someone?')">Forced voting</button>
+            </div>
+        </section>
+
+        <!-- ===== SECTION: BALLOT PRACTICE ===== -->
+        <section id="ballot" class="section hidden">
+            <h2>Practice Voting</h2>
+            <p>Practice marking your ballot before election day. No real vote is cast.</p>
+            <div class="ballot-info-bar">
+                <span>🗳️ Constituency: <strong id="ballot-constituency">Demo Constituency</strong></span>
+                <select id="constituency-select" class="select-input-sm"
+                    onchange="changeBallotConstituency(this.value)">
+                    <option value="demo">Demo Constituency</option>
+                    <option value="north">North Delhi</option>
+                    <option value="south">South Mumbai</option>
+                    <option value="east">East Bangalore</option>
+                    <option value="west">West Chennai</option>
+                </select>
+            </div>
+            <div id="ballot-paper" class="ballot-paper">
+                <div class="ballot-header">
+                    <div class="ballot-seal">🗳️</div>
+                    <div>
+                        <strong>ELECTION COMMISSION OF INDIA</strong>
+                        <p>General Election - Lok Sabha 2029 (Practice)</p>
+                    </div>
+                </div>
+                <div class="ballot-instruction">Mark ✓ in the circle next to your chosen candidate. Mark only ONE.</div>
+                <div id="ballot-candidates"></div>
+                <div class="ballot-footer">
+                    <button class="btn btn-primary" onclick="submitBallot()">Cast Practice Vote</button>
+                    <button class="btn btn-secondary" onclick="clearBallot()">Clear</button>
+                </div>
+            </div>
+            <div id="ballot-result" class="hidden ballot-result-box"></div>
+        </section>
+
+        <!-- ===== SECTION: CANDIDATE COMPARATOR ===== -->
+        <section id="candidates" class="section hidden">
+            <h2>Compare Candidates</h2>
+            <p>Get an AI-powered plain-language summary of candidates in your area.</p>
+            <div class="form-group">
+                <label>Your Constituency or District</label>
+                <input type="text" id="constituency-input" class="text-input"
+                    placeholder="e.g. Varanasi, South Mumbai, Bengaluru North">
+            </div>
+            <div class="form-group">
+                <label>What issue matters most to you?</label>
+                <div class="chip-container" id="issue-chips">
+                    <button class="chip issue-chip" onclick="selectIssue(this,'water')">💧 Water</button>
+                    <button class="chip issue-chip" onclick="selectIssue(this,'roads')">🛣️ Roads</button>
+                    <button class="chip issue-chip" onclick="selectIssue(this,'jobs')">💼 Jobs</button>
+                    <button class="chip issue-chip" onclick="selectIssue(this,'health')">🏥 Health</button>
+                    <button class="chip issue-chip" onclick="selectIssue(this,'education')">📚 Education</button>
+                    <button class="chip issue-chip" onclick="selectIssue(this,'safety')">🔒 Safety</button>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="compareCandidates()">🤖 Compare with AI</button>
+            <div id="candidate-loading" class="hidden ai-loading">
+                <div class="spinner"></div>
+                <p>AI is researching candidates...</p>
+            </div>
+            <div id="candidate-results" class="hidden"></div>
+        </section>
+
+        <!-- ===== SECTION: PROGRESS / GAMIFICATION ===== -->
+        <section id="progress" class="section hidden">
+            <h2>Your Progress</h2>
+            <p>Complete activities to earn badges and become a fully informed voter!</p>
+            <div class="progress-summary">
+                <div class="progress-circle-container">
+                    <svg viewBox="0 0 100 100" class="progress-ring">
+                        <circle cx="50" cy="50" r="40" class="ring-bg" />
+                        <circle cx="50" cy="50" r="40" class="ring-fill" id="ring-fill" />
+                    </svg>
+                    <div class="progress-percent" id="progress-percent">0%</div>
+                </div>
+                <div class="progress-label" id="progress-label">Keep going!</div>
+            </div>
+            <div class="badges-grid" id="badges-grid"></div>
+            <div class="share-card hidden" id="share-card">
+                <h3>🎉 You're Ready to Vote!</h3>
+                <p>Share your achievement and inspire others.</p>
+                <button class="btn btn-primary" onclick="shareProgress()">📱 Share</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast notifications -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
