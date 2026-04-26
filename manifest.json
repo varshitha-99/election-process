@@ -1,0 +1,17 @@
+{
+  "name": "Accessible Election Assistant",
+  "short_name": "Election AI",
+  "description": "Your guide to voting in India — simple, accessible, multilingual",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f0f7ff",
+  "theme_color": "#1a56db",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2633/2633814.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
